@@ -71,15 +71,14 @@ async function saveGuestData(uuid, username, color = 'default') {
 async function loadAllGuests() {
     try {
         const keys = await storage.keys();
-
         if (keys.length === 0) {
             console.log('[INFO] Nema gostiju. Dodajte goste!');
             return;
         }
 
-        console.log(`[INFO] Nađeno ${keys.length} gostiju:`, keys);
+        console.log(`[INFO] Nađeno ${keys.length} gostiju:`);
 
-        // Učitavanje podataka za svakog gosta
+        // Provera da li skladište sadrži ispravne podatke
         const guestPromises = keys.map(async (key) => {
             const guestData = await storage.getItem(key);
             if (!guestData) {
