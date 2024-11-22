@@ -16,15 +16,18 @@ async function initializeStorage() {
         }
 
         // Inicijalizacija skladišta
-        await storage.init({
+        const storageInit = await storage.init({
             dir: storageDir, // Postavljanje direktorijuma za skladištenje podataka
             forgiveParseErrors: true, // Ignorisanje grešaka prilikom parsiranja
             ttl: false, // Onemogućavanje automatskog isteka podataka
             encrypt: false, // Podaci se ne šifruju
             raw: true, // Ne koristi heširanje ključeva
         });
-        console.log('[INFO] Skladište je uspešno inicijalizovano.');
-        console.log(`[INFO] Skladište se nalazi u direktorijumu: ${storageDir}`);
+
+        if (storageInit) {
+            console.log('[INFO] Skladište je uspešno inicijalizovano.');
+            console.log(`[INFO] Skladište se nalazi u direktorijumu: ${storageDir}`);
+        }
     } catch (error) {
         console.error('[ERROR] Greška pri inicijalizaciji skladišta:', error);
     }
@@ -33,14 +36,14 @@ async function initializeStorage() {
 // Funkcija za dodavanje ili ažuriranje podataka o gostu
 async function saveGuestData(uuid, username, color = 'default') {
     try {
-        // Provera da li je UUID validan
-        if (!uuid || typeof uuid !== 'string' || uuid.trim() === '') {
+        // Provera da li je uuid validan
+        if (!uuid || typeof uuid !== 'string') {
             console.error('[ERROR] UUID nije validan:', uuid);
             return;
         }
 
         // Provera da li je username validan
-        if (!username || typeof username !== 'string' || username.trim() === '') {
+        if (!username || typeof username !== 'string') {
             console.error('[ERROR] Nevalidan username:', username);
             return;
         }
@@ -110,7 +113,7 @@ async function loadAllGuests() {
 async function loadGuestData(uuid) {
     try {
         // Provera da li je UUID validan
-        if (!uuid || typeof uuid !== 'string' || uuid.trim() === '') {
+        if (!uuid || typeof uuid !== 'string') {
             console.error('[ERROR] UUID nije validan pri učitavanju podataka za gosta');
             return null;
         }
