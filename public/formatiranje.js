@@ -1,5 +1,12 @@
 const socket = io();
 
+// UUID za korisnika
+let userUUID = localStorage.getItem('userUUID');
+if (!userUUID) {
+    userUUID = uuid.v4();  // Generišemo novi UUID ako ne postoji
+    localStorage.setItem('userUUID', userUUID); // Čuvamo UUID u localStorage
+}
+
 let isBold = true;
 let isItalic = true;
 let currentColor = '#FFFFFF';
@@ -47,7 +54,8 @@ document.getElementById('chatInput').addEventListener('keydown', function(event)
             text: message,
             bold: isBold,
             italic: isItalic,
-            color: currentColor
+            color: currentColor,
+            uuid: userUUID  // Pošaljemo UUID sa porukom
         });
         this.value = ''; // Isprazni polje za unos
     }
@@ -71,26 +79,37 @@ function addGuestStyles(guestElement, guestId) {
     const colorPickerButton = document.createElement('input');
     colorPickerButton.type = 'color';
     colorPickerButton.classList.add('colorPicker');
-     guestsData[guestId] = { color: 'currentColor', isBold: true, isItalic: true };
-     colorPickerButton.addEventListener('input', function() {
+    
+    // Učitavamo prethodne stilove ako postoje
+    if (guestsData[guestId]) {
+        colorPickerButton.value = guestsData[guestId].color || '#000000';
+    }
+    
+    colorPickerButton.addEventListener('input', function() {
         guestElement.style.color = this.value;
         guestsData[guestId].color = this.value; // Ažuriraj boju u objektu
+        localStorage.setItem(guestId, JSON.stringify(guestsData[guestId]));  // Spasi u localStorage
     });
 
     const boldButton = document.createElement('button');
     boldButton.textContent = 'B';
     boldButton.addEventListener('click', function() {
-        
+        guestsData[guestId].isBold = !guestsData[guestId].isBold;
+        guestElement.style.fontWeight = guestsData[guestId].isBold ? 'bold' : 'normal';
+        localStorage.setItem(guestId, JSON.stringify(guestsData[guestId]));  // Spasi u localStorage
     });
 
     const italicButton = document.createElement('button');
     italicButton.textContent = 'I';
     italicButton.addEventListener('click', function() {
-       
+        guestsData[guestId].isItalic = !guestsData[guestId].isItalic;
+        guestElement.style.fontStyle = guestsData[guestId].isItalic ? 'italic' : 'normal';
+        localStorage.setItem(guestId, JSON.stringify(guestsData[guestId]));  // Spasi u localStorage
     });
 
     guestElement.appendChild(colorPickerButton);
-    
+    guestElement.appendChild(boldButton);
+    guestElement.appendChild(italicButton);
 }
 
 // Kada nov gost dođe
@@ -124,15 +143,14 @@ socket.on('updateGuestList', function(users) {
     // Kreiraj nove elemente za sve korisnike
     users.forEach(nickname => {
         const guestId = `guest-${nickname}`;
-        
         const newGuest = document.createElement('div');
         newGuest.classList.add('guest');
         newGuest.textContent = nickname;
 
         // Zadržavanje postojećih stilova iz `guestsData`
         if (!guestsData[guestId]) {
-         guestsData[guestId] = { color: 'currentColor', isBold: true, isItalic: true };
-     }
+            guestsData[guestId] = { color: '#000000', isBold: false, isItalic: false };
+        }
 
         newGuest.style.color = guestsData[guestId].color;
         newGuest.style.fontWeight = guestsData[guestId].isBold ? 'bold' : 'normal';
