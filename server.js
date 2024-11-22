@@ -1,23 +1,17 @@
-import express from 'express';
-import http from 'http';
-import { Server } from 'socket.io'; // Ispravi import za socket.io
-import { connectDB } from './mongo.js'; // Dodaj .js ekstenziju kad koristiš `import`
-import { register, login } from './prijava.js'; // Dodaj .js ekstenziju
-import dotenv from 'dotenv'; // Koristi import za dotenv
-import { fileURLToPath } from 'url'; // Za import.meta.url
-import { dirname } from 'path'; // Za rad sa putanjama
-
-dotenv.config(); // Učitaj environment varijable
-
-// Računanje __dirname pomoću import.meta.url
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const express = require('express');
+const http = require('http');
+const socketIo = require('socket.io');
+const { connectDB } = require('./mongo');
+const { register, login } = require('./prijava');
+const { initializeStorage, saveGuestData, loadGuestData } = require('./storage');
+require('dotenv').config();
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);  // Koristi Server umesto socketIo
+const io = socketIo(server);
 
-connectDB();  // Spajanje na MongoDB
+connectDB();
+initializeStorage(); // Inicijalizuj storage pre nego što nastavimo sa serverom
 
 app.use(express.json());
 app.use(express.static(__dirname + '/public'));
@@ -35,30 +29,25 @@ let guests = {};
 let assignedNumbers = new Set();
 
 io.on('connection', (socket) => {
-    const uniqueSocketId = socket.id; // Koristimo socket.id umesto UUID
     const uniqueNumber = generateUniqueNumber();
     const nickname = `Gost-${uniqueNumber}`;
-    
-    socket.broadcast.emit('newGuest', nickname);
-    io.emit('updateGuestList', Object.values(guests));
+    guests[socket.id] = nickname;
 
-    // Dodaj novog gosta
-    guests[uniqueSocketId] = { socketId: uniqueSocketId, nickname: nickname };
-
+    saveGuestData(socket.id, nickname); // Spasi podatke gosta u storage
     console.log(`${nickname} se povezao.`);
 
-    socket.emit('assignSocketId', uniqueSocketId); // Pošaljemo socket.id klijentu
     socket.broadcast.emit('newGuest', nickname);
     io.emit('updateGuestList', Object.values(guests));
 
     socket.on('userLoggedIn', async (username) => {
         if (authorizedUsers.has(username)) {
-            guests[uniqueSocketId] = { socketId: uniqueSocketId, nickname: `${username} (Admin)` };
+            guests[socket.id] = `${username} (Admin)`;
             console.log(`${username} je autentifikovan kao admin.`);
         } else {
-            guests[uniqueSocketId] = { socketId: uniqueSocketId, nickname: username };
+            guests[socket.id] = username;
             console.log(`${username} se prijavio kao gost.`);
         }
+        await saveGuestData(socket.id, guests[socket.id]); // Ažuriraj podatke gosta u storage
         io.emit('updateGuestList', Object.values(guests));
     });
 
@@ -69,16 +58,17 @@ io.on('connection', (socket) => {
             bold: msgData.bold,
             italic: msgData.italic,
             color: msgData.color,
-            nickname: guests[uniqueSocketId].nickname,
+            nickname: guests[socket.id],
             time: time
         };
         io.emit('chatMessage', messageToSend);
     });
 
-    socket.on('disconnect', () => {
-        console.log(`${guests[uniqueSocketId].nickname} se odjavio.`);
-        assignedNumbers.delete(parseInt(guests[uniqueSocketId].nickname.split('-')[1], 10));
-        delete guests[uniqueSocketId];
+    socket.on('disconnect', async () => {
+        console.log(`${guests[socket.id]} se odjavio.`);
+        assignedNumbers.delete(parseInt(guests[socket.id].split('-')[1], 10));
+        await saveGuestData(socket.id, null); // Obrisi podatke gosta kad se odjavi
+        delete guests[socket.id];
         io.emit('updateGuestList', Object.values(guests));
     });
 });
