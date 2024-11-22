@@ -33,14 +33,20 @@ async function initializeStorage() {
 // Funkcija za dodavanje ili ažuriranje podataka o gostu
 async function saveGuestData(uuid, username, color = 'default') {
     try {
-        // Prvo inicijalizujemo skladište
-        await initializeStorage();
+        // Provera da li je uuid validan
+        if (!uuid) {
+            console.error('[ERROR] UUID nije validan:', uuid);
+            return;
+        }
 
         // Provera da li je username validan
         if (!username || typeof username !== 'string') {
-            console.error('[ERROR] Nevalidan username');
+            console.error('[ERROR] Nevalidan username:', username);
             return;
         }
+
+        // Prvo inicijalizujemo skladište
+        await initializeStorage();
 
         // Kreiranje objekta podataka o gostu
         const guestData = { username, color };
@@ -103,6 +109,12 @@ async function loadAllGuests() {
 // Funkcija za učitavanje specifičnog gosta
 async function loadGuestData(uuid) {
     try {
+        // Provera da li je UUID validan
+        if (!uuid) {
+            console.error('[ERROR] UUID nije validan pri učitavanju podataka za gosta');
+            return null;
+        }
+
         await initializeStorage();
 
         const guestData = await storage.getItem(uuid);
