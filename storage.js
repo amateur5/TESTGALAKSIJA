@@ -5,6 +5,8 @@ const { v4: uuidv4 } = require('uuid'); // Dodaj UUID generator
 
 // Putanja do direktorijuma u kojem će biti sačuvani podaci
 const storageDir = path.join(__dirname, 'cuvati');
+const storedGuests = await loadGuestData();
+
 
 // Automatska inicijalizacija skladišta
 async function initializeStorage() {
