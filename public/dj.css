@@ -1,0 +1,46 @@
+/* Stil za sve goste (uključujući admina i DJ-a) */
+.guest {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    margin: 5px 0;
+    padding-left: 20px; /* Da bismo omogućili prostor za ikonu */
+    font-weight: bold;  /* Dodajemo bold */
+    font-style: italic; /* Dodajemo italic */
+    color: inherit; /* Nasleđivanje boje od JavaScript-a */
+}
+
+/* Stil za ostale goste, sve imaju istu osnovnu postavku */
+.guest::before {
+    content: "•";  /* Tačka pre imena gostiju */
+    color: white;   /* Bela boja tačke */
+    margin-right: 10px;
+    font-size: 18px;
+}
+
+/* Input za boje (manje stilizovan) */
+.colorPicker {
+    margin-left: 10px;
+    padding: 5px;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+/* Stil za poruke konobarice */
+.konobarica {
+    color: #ff6347; /* Boja za Konobaricu */
+    font-weight: bold; /* Bold za Konobaricu */
+    font-style: italic; /* Italic za Konobaricu */
+}
+
+/* Stil za sistemske poruke */
+.system-message {
+    font-style: italic;
+    color: #888;
+}
+
+
+
+
+
