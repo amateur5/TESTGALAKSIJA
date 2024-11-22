@@ -38,6 +38,9 @@ io.on('connection', (socket) => {
     const uniqueSocketId = socket.id; // Koristimo socket.id umesto UUID
     const uniqueNumber = generateUniqueNumber();
     const nickname = `Gost-${uniqueNumber}`;
+    
+    socket.broadcast.emit('newGuest', nickname);
+    io.emit('updateGuestList', Object.values(guests));
 
     // Dodaj novog gosta
     guests[uniqueSocketId] = { socketId: uniqueSocketId, nickname: nickname };
