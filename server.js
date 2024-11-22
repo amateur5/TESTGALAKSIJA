@@ -11,8 +11,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);  // Koristi Server umesto socketIo
 
-connectDB();
-initializeStorage(); // Inicijalizuj storage pre nego što nastavimo sa serverom
+connectDB();  // Spajanje na MongoDB
 
 app.use(express.json());
 app.use(express.static(__dirname + '/public'));
@@ -29,27 +28,17 @@ const bannedUsers = new Set();
 let guests = {};
 let assignedNumbers = new Set();
 
-// Učitaj podatke o gostima iz storage-a prilikom pokretanja servera
-async function loadInitialGuestData() {
-    const storedGuests = await loadGuestData();
-    for (const [socketId, guestData] of Object.entries(storedGuests)) {
-        guests[socketId] = guestData;
-    }
-}
-loadInitialGuestData();
-
 io.on('connection', (socket) => {
     const uniqueSocketId = socket.id; // Koristimo socket.id umesto UUID
     const uniqueNumber = generateUniqueNumber();
     const nickname = `Gost-${uniqueNumber}`;
 
+    // Dodaj novog gosta
     guests[uniqueSocketId] = { socketId: uniqueSocketId, nickname: nickname };
 
-    saveGuestData(uniqueSocketId, { nickname, socketId: uniqueSocketId }); // Spasi podatke gosta u storage
     console.log(`${nickname} se povezao.`);
 
     socket.emit('assignSocketId', uniqueSocketId); // Pošaljemo socket.id klijentu
-
     socket.broadcast.emit('newGuest', nickname);
     io.emit('updateGuestList', Object.values(guests));
 
@@ -61,7 +50,6 @@ io.on('connection', (socket) => {
             guests[uniqueSocketId] = { socketId: uniqueSocketId, nickname: username };
             console.log(`${username} se prijavio kao gost.`);
         }
-        await saveGuestData(uniqueSocketId, guests[uniqueSocketId]); // Ažuriraj podatke gosta u storage
         io.emit('updateGuestList', Object.values(guests));
     });
 
@@ -78,10 +66,9 @@ io.on('connection', (socket) => {
         io.emit('chatMessage', messageToSend);
     });
 
-    socket.on('disconnect', async () => {
+    socket.on('disconnect', () => {
         console.log(`${guests[uniqueSocketId].nickname} se odjavio.`);
         assignedNumbers.delete(parseInt(guests[uniqueSocketId].nickname.split('-')[1], 10));
-        await saveGuestData(uniqueSocketId, null); // Obrisi podatke gosta kad se odjavi
         delete guests[uniqueSocketId];
         io.emit('updateGuestList', Object.values(guests));
     });
