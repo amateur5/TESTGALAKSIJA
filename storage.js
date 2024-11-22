@@ -33,19 +33,19 @@ async function initializeStorage() {
 // Funkcija za dodavanje ili ažuriranje podataka o gostu
 async function saveGuestData(uuid, username, color = 'default') {
     try {
-        // Provera da li je uuid validan
-        if (!uuid) {
+        // Provera da li je UUID validan
+        if (!uuid || typeof uuid !== 'string' || uuid.trim() === '') {
             console.error('[ERROR] UUID nije validan:', uuid);
             return;
         }
 
         // Provera da li je username validan
-        if (!username || typeof username !== 'string') {
+        if (!username || typeof username !== 'string' || username.trim() === '') {
             console.error('[ERROR] Nevalidan username:', username);
             return;
         }
 
-        // Prvo inicijalizujemo skladište
+        // Inicijalizacija skladišta
         await initializeStorage();
 
         // Kreiranje objekta podataka o gostu
@@ -110,7 +110,7 @@ async function loadAllGuests() {
 async function loadGuestData(uuid) {
     try {
         // Provera da li je UUID validan
-        if (!uuid) {
+        if (!uuid || typeof uuid !== 'string' || uuid.trim() === '') {
             console.error('[ERROR] UUID nije validan pri učitavanju podataka za gosta');
             return null;
         }
