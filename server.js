@@ -3,7 +3,6 @@ import http from 'http';
 import socketIo from 'socket.io';
 import { connectDB } from './mongo.js'; // Dodaj .js ekstenziju kad koristiš `import`
 import { register, login } from './prijava.js'; // Dodaj .js ekstenziju
-import { initializeStorage, saveGuestData, loadGuestData } from './storage.js'; // Dodaj .js ekstenziju
 import dotenv from 'dotenv'; // Koristi import za dotenv
 
 dotenv.config(); // Učitaj environment varijable
