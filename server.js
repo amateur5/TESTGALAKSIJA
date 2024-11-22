@@ -4,7 +4,6 @@ const socketIo = require('socket.io');
 const { connectDB } = require('./mongo');
 const { register, login } = require('./prijava');
 const { initializeStorage, saveGuestData, loadGuestData } = require('./storage');
-const { v4: uuidv4 } = require('uuid'); // Import UUID
 require('dotenv').config();
 
 const app = express();
@@ -32,36 +31,36 @@ let assignedNumbers = new Set();
 // Učitaj podatke o gostima iz storage-a prilikom pokretanja servera
 async function loadInitialGuestData() {
     const storedGuests = await loadGuestData();
-    for (const [uuid, guestData] of Object.entries(storedGuests)) {
-        guests[uuid] = guestData;
+    for (const [socketId, guestData] of Object.entries(storedGuests)) {
+        guests[socketId] = guestData;
     }
 }
 loadInitialGuestData();
 
 io.on('connection', (socket) => {
-    const uniqueUUID = uuidv4(); // Generišemo UUID za svakog korisnika
+    const uniqueSocketId = socket.id; // Koristimo socket.id umesto UUID
     const uniqueNumber = generateUniqueNumber();
     const nickname = `Gost-${uniqueNumber}`;
 
-    guests[uniqueUUID] = { uuid: uniqueUUID, nickname: nickname };
+    guests[uniqueSocketId] = { socketId: uniqueSocketId, nickname: nickname };
 
-    saveGuestData(uniqueUUID, { nickname, uuid: uniqueUUID }); // Spasi podatke gosta u storage
+    saveGuestData(uniqueSocketId, { nickname, socketId: uniqueSocketId }); // Spasi podatke gosta u storage
     console.log(`${nickname} se povezao.`);
 
-    socket.emit('assignUUID', uniqueUUID); // Pošaljemo UUID klijentu
+    socket.emit('assignSocketId', uniqueSocketId); // Pošaljemo socket.id klijentu
 
     socket.broadcast.emit('newGuest', nickname);
     io.emit('updateGuestList', Object.values(guests));
 
     socket.on('userLoggedIn', async (username) => {
         if (authorizedUsers.has(username)) {
-            guests[uniqueUUID] = { uuid: uniqueUUID, nickname: `${username} (Admin)` };
+            guests[uniqueSocketId] = { socketId: uniqueSocketId, nickname: `${username} (Admin)` };
             console.log(`${username} je autentifikovan kao admin.`);
         } else {
-            guests[uniqueUUID] = { uuid: uniqueUUID, nickname: username };
+            guests[uniqueSocketId] = { socketId: uniqueSocketId, nickname: username };
             console.log(`${username} se prijavio kao gost.`);
         }
-        await saveGuestData(uniqueUUID, guests[uniqueUUID]); // Ažuriraj podatke gosta u storage
+        await saveGuestData(uniqueSocketId, guests[uniqueSocketId]); // Ažuriraj podatke gosta u storage
         io.emit('updateGuestList', Object.values(guests));
     });
 
@@ -72,17 +71,17 @@ io.on('connection', (socket) => {
             bold: msgData.bold,
             italic: msgData.italic,
             color: msgData.color,
-            nickname: guests[uniqueUUID].nickname,
+            nickname: guests[uniqueSocketId].nickname,
             time: time
         };
         io.emit('chatMessage', messageToSend);
     });
 
     socket.on('disconnect', async () => {
-        console.log(`${guests[uniqueUUID].nickname} se odjavio.`);
-        assignedNumbers.delete(parseInt(guests[uniqueUUID].nickname.split('-')[1], 10));
-        await saveGuestData(uniqueUUID, null); // Obrisi podatke gosta kad se odjavi
-        delete guests[uniqueUUID];
+        console.log(`${guests[uniqueSocketId].nickname} se odjavio.`);
+        assignedNumbers.delete(parseInt(guests[uniqueSocketId].nickname.split('-')[1], 10));
+        await saveGuestData(uniqueSocketId, null); // Obrisi podatke gosta kad se odjavi
+        delete guests[uniqueSocketId];
         io.emit('updateGuestList', Object.values(guests));
     });
 });
