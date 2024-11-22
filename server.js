@@ -1,11 +1,17 @@
 import express from 'express';
 import http from 'http';
-import { Server } from 'socket.io';  // Ispravi import za socket.io
+import { Server } from 'socket.io'; // Ispravi import za socket.io
 import { connectDB } from './mongo.js'; // Dodaj .js ekstenziju kad koristiš `import`
 import { register, login } from './prijava.js'; // Dodaj .js ekstenziju
 import dotenv from 'dotenv'; // Koristi import za dotenv
+import { fileURLToPath } from 'url'; // Za import.meta.url
+import { dirname } from 'path'; // Za rad sa putanjama
 
 dotenv.config(); // Učitaj environment varijable
+
+// Računanje __dirname pomoću import.meta.url
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const app = express();
 const server = http.createServer(app);
