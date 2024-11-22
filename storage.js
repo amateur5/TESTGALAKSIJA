@@ -9,7 +9,7 @@ const storageDir = path.join(__dirname, 'cuvati');
 // Automatska inicijalizacija skladišta
 async function initializeStorage() {
     try {
-        // Provera da li direktorijum postoji, ako ne kreiramo ga
+        // Provera da li direktorijum postoji, ako ne, kreiramo ga
         if (!fs.existsSync(storageDir)) {
             console.log('[INFO] Direktorijum "cuvati" ne postoji. Kreiramo ga...');
             fs.mkdirSync(storageDir, { recursive: true });
@@ -70,6 +70,9 @@ async function saveGuestData(uuid, username, color = 'default') {
 // Funkcija za učitavanje svih gostiju
 async function loadAllGuests() {
     try {
+        // Inicijalizacija skladišta
+        await initializeStorage();
+
         const keys = await storage.keys();
         if (keys.length === 0) {
             console.log('[INFO] Nema gostiju. Dodajte goste!');
@@ -100,6 +103,8 @@ async function loadAllGuests() {
 // Funkcija za učitavanje specifičnog gosta
 async function loadGuestData(uuid) {
     try {
+        await initializeStorage();
+
         const guestData = await storage.getItem(uuid);
         if (guestData) {
             console.log('[INFO] Podaci za gosta:', guestData);
