@@ -1,6 +1,6 @@
 import express from 'express';
 import http from 'http';
-import socketIo from 'socket.io';
+import { Server } from 'socket.io';  // Ispravi import za socket.io
 import { connectDB } from './mongo.js'; // Dodaj .js ekstenziju kad koristiš `import`
 import { register, login } from './prijava.js'; // Dodaj .js ekstenziju
 import dotenv from 'dotenv'; // Koristi import za dotenv
@@ -9,7 +9,7 @@ dotenv.config(); // Učitaj environment varijable
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
+const io = new Server(server);  // Koristi Server umesto socketIo
 
 connectDB();
 initializeStorage(); // Inicijalizuj storage pre nego što nastavimo sa serverom
