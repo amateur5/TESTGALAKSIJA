@@ -1,27 +1,27 @@
 const storage = require('node-persist');
 const path = require('path');
 const fs = require('fs');
-const { v4: uuidv4 } = require('uuid'); // Dodajemo UUID biblioteku
+const { v4: uuidv4 } = require('uuid'); // UUID biblioteka za generisanje jedinstvenih identifikatora
 
-// Putanja do direktorijuma u kojem će biti sačuvani podaci
+// Putanja do direktorijuma gde će se skladištiti podaci
 const storageDir = path.join(__dirname, 'cuvati');
 
 // Automatska inicijalizacija skladišta
 async function initializeStorage() {
     try {
-        // Ako direktorijum ne postoji, kreiraj ga
+        // Provera da li direktorijum postoji, ako ne kreiramo ga
         if (!fs.existsSync(storageDir)) {
             console.log('[INFO] Direktorijum "cuvati" ne postoji. Kreiramo ga...');
             fs.mkdirSync(storageDir, { recursive: true });
         }
 
-        // Inicijalizacija skladišta sa direktorijumom
+        // Inicijalizacija skladišta
         await storage.init({
-            dir: storageDir, // koristi lokalni direktorijum 'cuvati'
-            forgiveParseErrors: true, // ignoriši greške prilikom parsiranja podataka
-            ttl: false, // isključuje automatsko podešavanje vremena isteka podataka
-            encrypt: false, // isključuje šifrovanje, podatke čuva u plain text formatu
-            raw: true, // onemogućava heširanje ključeva
+            dir: storageDir, // Postavljanje direktorijuma za skladištenje podataka
+            forgiveParseErrors: true, // Ignorisanje grešaka prilikom parsiranja
+            ttl: false, // Onemogućavanje automatskog isteka podataka
+            encrypt: false, // Podaci se ne šifruju
+            raw: true, // Ne koristi heširanje ključeva
         });
         console.log('[INFO] Skladište je uspešno inicijalizovano.');
         console.log(`[INFO] Skladište se nalazi u direktorijumu: ${storageDir}`);
@@ -31,8 +31,9 @@ async function initializeStorage() {
 }
 
 // Funkcija za dodavanje ili ažuriranje podataka o gostu
-async function saveGuestData(uuid, username, color) {
+async function saveGuestData(uuid, username, color = 'default') {
     try {
+        // Prvo inicijalizujemo skladište
         await initializeStorage();
 
         // Provera da li je username validan
@@ -41,13 +42,10 @@ async function saveGuestData(uuid, username, color) {
             return;
         }
 
-        // Kreiraj objekat s novim vrednostima
-        const guestData = {
-            username: username,  // Korisničko ime
-            color: color || 'default',  // Ako boja nije prosleđena, koristi 'default'
-        };
+        // Kreiranje objekta podataka o gostu
+        const guestData = { username, color };
 
-        // Provera da li već postoji gost sa istim UUID
+        // Provera da li već postoji gost sa istim UUID-om
         const existingGuestData = await storage.getItem(uuid);
         if (existingGuestData) {
             console.log(`[INFO] Ažuriranje podataka za gosta ${username} sa UUID ${uuid}`);
@@ -61,9 +59,9 @@ async function saveGuestData(uuid, username, color) {
         // Prvo obriši stare podatke pre nego što sačuvaš nove
         await storage.removeItem(uuid);
 
-        // Sačuvaj ažurirane podatke pod UUID
+        // Sačuvaj nove podatke
         await storage.setItem(uuid, guestData);
-        console.log(`[INFO] Podaci za gosta ${username} sa UUID "${uuid}" su sačuvani:`, guestData);
+        console.log(`[INFO] Podaci za gosta ${username} sa UUID "${uuid}" su sačuvani.`);
     } catch (err) {
         console.error(`[ERROR] Greška prilikom čuvanja podataka za gosta ${username}:`, err);
     }
@@ -81,20 +79,17 @@ async function loadAllGuests() {
 
         console.log(`[INFO] Nađeno ${keys.length} gostiju:`, keys);
 
+        // Učitavanje podataka za svakog gosta
         const guestPromises = keys.map(async (key) => {
             const guestData = await storage.getItem(key);
-
-            // Ako podaci nisu pronađeni, postavi ih na prazan string
             if (!guestData) {
                 console.warn(`[WARN] Podaci za gosta ${key} nisu pronađeni ili su nevalidni.`);
-                return `${key}: Nema podataka`; // Vraćamo string ako nema podataka
+                return `${key}: Nema podataka`;
             }
-
-            // Vraćamo podatke kao string
             return `${key}: ${JSON.stringify(guestData)}`;
         });
 
-        // Obrađujemo sve goste i logujemo ih
+        // Prikazivanje podataka o svim gostima
         const guestDataStrings = await Promise.all(guestPromises);
         guestDataStrings.forEach(data => console.log(data));
 
@@ -104,13 +99,15 @@ async function loadAllGuests() {
 }
 
 // Funkcija za učitavanje specifičnog gosta
-async function loadGuestDataByKey(uuid) {
+async function loadGuestData(uuid) {
     try {
         const guestData = await storage.getItem(uuid);
         if (guestData) {
             console.log('[INFO] Podaci za gosta:', guestData);
+            return guestData;
         } else {
             console.log(`[INFO] Nema podataka za gosta sa UUID: ${uuid}`);
+            return null;
         }
     } catch (err) {
         console.error(`[ERROR] Greška prilikom učitavanja podataka za gosta sa UUID: ${uuid}`, err);
@@ -124,12 +121,13 @@ async function testServer() {
 
     await saveGuestData(uuid1, 'Gost-1', 'plava');
     await saveGuestData(uuid2, 'Gost-2', 'crvena');
-    await loadAllGuests();
+    await loadAllGuests();  // Učitavanje svih gostiju
+    await loadGuestData(uuid1);  // Učitavanje podataka za jednog gosta
 }
 
 // Pokreni server
 async function startServer() {
-    await initializeStorage();  // Inicijalizuj storage pre nego što nastavimo sa serverom
+    await initializeStorage();  // Inicijalizacija skladišta
     console.log('[INFO] Server je spreman!');
     await loadAllGuests();  // Učitaj sve goste na početku
 }
@@ -142,4 +140,5 @@ module.exports = {
     saveGuestData,
     loadAllGuests,
     initializeStorage,
+    loadGuestData,
 };
