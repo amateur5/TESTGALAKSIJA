@@ -1,8 +1,8 @@
-const bcrypt = require('bcrypt');
-const { User } = require('./mongo');  // Preporučujem da koristiš User model direktno
+import bcrypt from 'bcrypt';
+import { User } from './mongo.js';  // Preporučujem da koristiš User model direktno
 
 // Funkcija za registraciju
-async function register(req, res, io) {
+export async function register(req, res, io) {
     const { username, password } = req.body;
 
     if (!username || !password) {
@@ -23,7 +23,7 @@ async function register(req, res, io) {
 }
 
 // Funkcija za prijavu
-async function login(req, res, io) {
+export async function login(req, res, io) {
     const { username, password } = req.body;
     const socketId = req.headers['x-socket-id']; // Socket ID primljen od klijenta u zaglavlju
 
@@ -51,5 +51,3 @@ async function login(req, res, io) {
         res.status(500).send('Server error');
     }
 }
-
-module.exports = { register, login };
