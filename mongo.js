@@ -1,5 +1,7 @@
-require('dotenv').config();
-const mongoose = require('mongoose');
+import dotenv from 'dotenv';
+import mongoose from 'mongoose';
+
+dotenv.config(); // Učitavanje .env fajla
 
 // Konekcija sa MongoDB bazom koristeći .env fajl za URI
 const uri = process.env.MONGODB_URI;
@@ -69,4 +71,4 @@ const ensureAdminExists = async () => {
 ensureAdminExists();
 
 // Exportujemo konekciju i model korisnika
-module.exports = { connectDB, User };
+export { connectDB, User };
