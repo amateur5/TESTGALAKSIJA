@@ -7,25 +7,41 @@ if (!userUUID) {
     localStorage.setItem('userUUID', userUUID); // Čuvamo UUID u localStorage
 }
 
-let currentColor = '#000000'; // Boja za poruke
+let isBold = true; // Default je bold
+let isItalic = true; // Default je italic
+let currentColor = '#808080'; // Default boja je siva
 
 // Objekat za čuvanje podataka o gostima
 const guestsData = {};
 
-// Funkcija za biranje boje poruke (glavni color picker)
+// Funkcija za biranje boje (novi metod: paleta dugmadi)
 document.getElementById('colorBtn').addEventListener('click', function() {
-    document.getElementById('colorPicker').click();
+    // Možemo promeniti dugme za odabir boje ili koristiti paletu
+    let colorPalette = document.createElement('div');
+    colorPalette.style.display = 'flex';
+    colorPalette.style.flexDirection = 'column';
+    let colors = ['#808080', '#FF5733', '#33FF57', '#3357FF', '#FF33A8'];  // Primer boja
+    colors.forEach(color => {
+        let colorOption = document.createElement('div');
+        colorOption.style.backgroundColor = color;
+        colorOption.style.width = '30px';
+        colorOption.style.height = '30px';
+        colorOption.style.margin = '5px';
+        colorOption.addEventListener('click', function() {
+            currentColor = color;
+            updateInputStyle();
+            colorPalette.style.display = 'none'; // Sakrijemo paletu
+        });
+        colorPalette.appendChild(colorOption);
+    });
+    document.body.appendChild(colorPalette); // Dodajemo paletu u body
 });
 
 // Kada korisnik izabere boju iz palete
-document.getElementById('colorPicker').addEventListener('input', function() {
-    currentColor = this.value;
-    updateInputStyle();
-});
-
-// Primena stilova na polju za unos
 function updateInputStyle() {
     let inputField = document.getElementById('chatInput');
+    inputField.style.fontWeight = isBold ? 'bold' : 'normal';
+    inputField.style.fontStyle = isItalic ? 'italic' : 'normal';
     inputField.style.color = currentColor;
 }
 
@@ -36,6 +52,8 @@ document.getElementById('chatInput').addEventListener('keydown', function(event)
         let message = this.value;
         socket.emit('chatMessage', {
             text: message,
+            bold: isBold,
+            italic: isItalic,
             color: currentColor,
             uuid: userUUID  // Pošaljemo UUID sa porukom
         });
@@ -48,19 +66,26 @@ socket.on('chatMessage', function(data) {
     let messageArea = document.getElementById('messageArea');
     let newMessage = document.createElement('div');
     newMessage.classList.add('message');
+    newMessage.style.fontWeight = data.bold ? 'bold' : 'normal';
+    newMessage.style.fontStyle = data.italic ? 'italic' : 'normal';
     newMessage.style.color = data.color;
     newMessage.innerHTML = `<strong style="color: ${data.color};">${data.nickname}:</strong> ${data.text} <span style="font-size: 0.8em; color: gray;">(${data.time})</span>`;
     messageArea.prepend(newMessage);
     messageArea.scrollTop = 0; // Automatsko skrolovanje
 });
 
-// Funkcija za dodavanje stilova gostima (color picker je uklonjen za goste)
+// Funkcija za dodavanje stilova gostima
 function addGuestStyles(guestElement, guestId, nickname) {
-    guestElement.style.color = guestsData[guestId].color || '#000000';  // Primeni boju iz guestsData
-
-    // Kada korisnik izabere boju sa toolbar-a
+    guestElement.style.fontWeight = isBold ? 'bold' : 'normal';
+    guestElement.style.fontStyle = isItalic ? 'italic' : 'normal';
     guestElement.style.color = currentColor;
-    guestsData[guestId].color = currentColor; // Spremi boju u guestsData
+
+    // Čuvanje stila u guestsData
+    guestsData[guestId] = {
+        color: currentColor,
+        isBold: isBold,
+        isItalic: isItalic
+    };
     localStorage.setItem(guestId, JSON.stringify(guestsData[guestId])); // Spasi u localStorage
 }
 
@@ -74,18 +99,19 @@ socket.on('newGuest', function(nickname) {
 
     const newGuest = document.createElement('div');
     newGuest.classList.add('guest');
-    newGuest.id = guestId;  // Dodajemo id kako bismo sprečili dupliranje
+    newGuest.id = guestId;
     newGuest.textContent = nickname;
 
     // Dodaj novog gosta u guestsData ako ne postoji
     if (!guestsData[guestId]) {
-        guestsData[guestId] = { color: '#000000' };
+        guestsData[guestId] = { color: '#808080', isBold: true, isItalic: true };  // Default stilovi
     }
 
-    // Primeni postojeće stilove ako ih ima
+    newGuest.style.fontWeight = guestsData[guestId].isBold ? 'bold' : 'normal';
+    newGuest.style.fontStyle = guestsData[guestId].isItalic ? 'italic' : 'normal';
     newGuest.style.color = guestsData[guestId].color;
 
-    addGuestStyles(newGuest, guestId, nickname); // Dodaj stilove
+    addGuestStyles(newGuest, guestId, nickname);
 
     guestList.appendChild(newGuest); // Dodaj novog gosta
 });
@@ -100,17 +126,19 @@ socket.on('updateGuestList', function(users) {
         const guestId = `guest-${nickname}`;
         const newGuest = document.createElement('div');
         newGuest.classList.add('guest');
-        newGuest.id = guestId;  // Dodajemo id kako bismo sprečili dupliranje
+        newGuest.id = guestId;
         newGuest.textContent = nickname;
 
         // Zadržavanje postojećih stilova iz `guestsData`
         if (!guestsData[guestId]) {
-            guestsData[guestId] = { color: '#000000' };
+            guestsData[guestId] = { color: '#808080', isBold: true, isItalic: true };
         }
 
+        newGuest.style.fontWeight = guestsData[guestId].isBold ? 'bold' : 'normal';
+        newGuest.style.fontStyle = guestsData[guestId].isItalic ? 'italic' : 'normal';
         newGuest.style.color = guestsData[guestId].color;
 
-        addGuestStyles(newGuest, guestId, nickname); // Dodaj stilove za novog gosta
+        addGuestStyles(newGuest, guestId, nickname);
         guestList.appendChild(newGuest); // Dodaj u listu
     });
 });
