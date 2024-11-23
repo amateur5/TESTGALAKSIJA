@@ -10,16 +10,16 @@ body {
 }
 
 #authContainer {
-    background-color: #333;
-    border-radius: 30px;
-    padding: 10px;
-    width: 120px; /* Smanjena širina */
-    height: 160px; /* Smanjena visina */
-    box-shadow: 0px 4px 8px rgba(255, 255, 255, 0.3);
+    background-color: #222; /* Smanjena svetlost za bolji kontrast */
+    border-radius: 15px; /* Manji radius za savijene ivice */
+    padding: 20px;
+    width: 280px; /* Širina je povećana da bude malo širi */
+    height: 250px; /* Smanjena visina, bolje uklapanje */
+    box-shadow: 0px 4px 8px rgba(0, 255, 255, 0.5); /* Neon senka u plavoj */
     position: absolute;
-    top: 0;
-    left: 0;
-    margin: 20px; /* Razmak od ivice */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Centriranje u sredinu ekrana */
 }
 
 #authContainer form {
@@ -36,7 +36,7 @@ body {
     margin: 6px 0; /* Smanjen razmak */
     border: 1px solid #555;
     border-radius: 5px;
-    background-color: #222;
+    background-color: #333; /* Tamnija pozadina inputa */
     color: white;
     font-size: 14px; /* Manja veličina fonta */
 }
@@ -48,22 +48,22 @@ body {
 
 #authContainer button[type="submit"] {
     width: 100%;
-    padding: 8px; /* Manje padding */
-    background-color: #333;
-    color: #00ffff; /* Bela neon boja za dugme */
-    border: 1px solid #00ffff; /* Neon ivica */
+    padding: 10px; /* Povećano padding da bude udobnije za klik */
+    background-color: #00ffff; /* Neon boja za dugme */
+    color: #222; /* Tamno siva boja za tekst */
+    border: 1px solid #00ffff;
     border-radius: 5px;
-    font-size: 14px; /* Manja veličina fonta */
+    font-size: 16px;
     font-weight: bold;
     cursor: pointer;
     transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
-    margin-top: 8px;
+    margin-top: 10px;
     box-shadow: 0px 0px 8px rgba(0, 255, 255, 0.7); /* Neon senka */
 }
 
 #authContainer button[type="submit"]:hover {
     color: #333;
-    background-color: #00ffff; /* Obrnuta neon boja na hover */
+    background-color: #222; /* Tamna pozadina na hover */
     border-color: #00ffff;
 }
 
