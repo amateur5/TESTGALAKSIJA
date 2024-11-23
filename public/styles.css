@@ -13,8 +13,8 @@ body {
     background-color: #333;
     border-radius: 30px;
     padding: 10px;
-    width: 150px;
-    height: 200px;
+    width: 120px; /* Smanjena širina */
+    height: 160px; /* Smanjena visina */
     box-shadow: 0px 4px 8px rgba(255, 255, 255, 0.3);
     position: absolute;
     top: 0;
@@ -32,13 +32,13 @@ body {
 #authContainer input[type="text"],
 #authContainer input[type="password"] {
     width: 100%;
-    padding: 10px;
-    margin: 8px 0;
+    padding: 8px; /* Smanjeno padding */
+    margin: 6px 0; /* Smanjen razmak */
     border: 1px solid #555;
     border-radius: 5px;
     background-color: #222;
     color: white;
-    font-size: 16px;
+    font-size: 14px; /* Manja veličina fonta */
 }
 
 #authContainer input[type="text"]::placeholder,
@@ -48,16 +48,16 @@ body {
 
 #authContainer button[type="submit"] {
     width: 100%;
-    padding: 10px;
+    padding: 8px; /* Manje padding */
     background-color: #333;
     color: #00ffff; /* Bela neon boja za dugme */
     border: 1px solid #00ffff; /* Neon ivica */
     border-radius: 5px;
-    font-size: 16px;
+    font-size: 14px; /* Manja veličina fonta */
     font-weight: bold;
     cursor: pointer;
     transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
-    margin-top: 10px;
+    margin-top: 8px;
     box-shadow: 0px 0px 8px rgba(0, 255, 255, 0.7); /* Neon senka */
 }
 
@@ -115,7 +115,8 @@ body {
     display: flex;
     flex-direction: column;
     overflow-y: auto;
-    scrollbar: 3px;
+    scrollbar-width: thin; /* Smanjen scrollbar */
+    scrollbar-color: #00ffff #333; /* Neon boja scrollbara */
 }
 
 .message {
