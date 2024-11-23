@@ -16,10 +16,9 @@ body {
     width: 280px; /* Širina može ostati oko 280px */
     height: 250px; /* Tačno 250px visine */
     box-shadow: 0px 4px 8px rgba(0, 255, 255, 0.5); /* Neon senka */
-    position: fixed; /* Postavljamo kao fixed element, da bude uvek vidljiv */
-    top: 50%; /* Centriramo na ekranu */
-    left: 50%;
-    transform: translate(-50%, -50%); /* Centriranje u sredini */
+    position: absolute; /* Postavljeno na absolute */
+    top: 0; /* Gornji leviji kut */
+    left: 0; /* Gornji leviji kut */
 }
 
 #authContainer form {
