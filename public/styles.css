@@ -10,16 +10,16 @@ body {
 }
 
 #authContainer {
-    background-color: #222; /* Smanjena svetlost za bolji kontrast */
-    border-radius: 15px; /* Manji radius za savijene ivice */
+    background-color: #222; /* Tamniji background */
+    border-radius: 15px; /* Manji radius ivica */
     padding: 20px;
-    width: 280px; /* Širina je povećana da bude malo širi */
-    height: 250px; /* Smanjena visina, bolje uklapanje */
-    box-shadow: 0px 4px 8px rgba(0, 255, 255, 0.5); /* Neon senka u plavoj */
-    position: absolute;
-    top: 50%;
+    width: 280px; /* Širina može ostati oko 280px */
+    height: 250px; /* Tačno 250px visine */
+    box-shadow: 0px 4px 8px rgba(0, 255, 255, 0.5); /* Neon senka */
+    position: fixed; /* Postavljamo kao fixed element, da bude uvek vidljiv */
+    top: 50%; /* Centriramo na ekranu */
     left: 50%;
-    transform: translate(-50%, -50%); /* Centriranje u sredinu ekrana */
+    transform: translate(-50%, -50%); /* Centriranje u sredini */
 }
 
 #authContainer form {
@@ -32,13 +32,13 @@ body {
 #authContainer input[type="text"],
 #authContainer input[type="password"] {
     width: 100%;
-    padding: 8px; /* Smanjeno padding */
-    margin: 6px 0; /* Smanjen razmak */
+    padding: 8px;
+    margin: 6px 0;
     border: 1px solid #555;
     border-radius: 5px;
-    background-color: #333; /* Tamnija pozadina inputa */
+    background-color: #333;
     color: white;
-    font-size: 14px; /* Manja veličina fonta */
+    font-size: 14px;
 }
 
 #authContainer input[type="text"]::placeholder,
@@ -48,9 +48,9 @@ body {
 
 #authContainer button[type="submit"] {
     width: 100%;
-    padding: 10px; /* Povećano padding da bude udobnije za klik */
-    background-color: #00ffff; /* Neon boja za dugme */
-    color: #222; /* Tamno siva boja za tekst */
+    padding: 10px;
+    background-color: #00ffff;
+    color: #222;
     border: 1px solid #00ffff;
     border-radius: 5px;
     font-size: 16px;
@@ -58,12 +58,12 @@ body {
     cursor: pointer;
     transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
     margin-top: 10px;
-    box-shadow: 0px 0px 8px rgba(0, 255, 255, 0.7); /* Neon senka */
+    box-shadow: 0px 0px 8px rgba(0, 255, 255, 0.7);
 }
 
 #authContainer button[type="submit"]:hover {
     color: #333;
-    background-color: #222; /* Tamna pozadina na hover */
+    background-color: #222;
     border-color: #00ffff;
 }
 
@@ -115,8 +115,9 @@ body {
     display: flex;
     flex-direction: column;
     overflow-y: auto;
-    scrollbar-width: thin; /* Smanjen scrollbar */
-    scrollbar-color: #00ffff #333; /* Neon boja scrollbara */
+    scrollbar-width: thin; /* Tanki scrollbar */
+    scrollbar-color: #00ffff #333; /* Neon boja */
+    height: 250px; /* Visina scrollbara 250px */
 }
 
 .message {
@@ -148,7 +149,7 @@ body {
     height: calc(100% - 70px);
     border-left: 2px solid white;
     background-color: black;
-    color: white; /* Default color remains white for non-dynamic text */
+    color: white;
     border-bottom: 10px solid white;
     overflow-y: auto;
 }
@@ -157,5 +158,5 @@ body {
     padding: 5px;
     border-bottom: 1px solid white;
     cursor: pointer;
-    color: inherit; /* Ensure dynamic color from JS is applied */
+    color: inherit;
 }
