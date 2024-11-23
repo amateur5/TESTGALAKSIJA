@@ -39,27 +39,25 @@ io.on('connection', (socket) => {
     const uniqueNumber = generateUniqueNumber();
     const nickname = `Gost-${uniqueNumber}`;
     
-    socket.broadcast.emit('newGuest', nickname);
-    io.emit('updateGuestList', Object.values(guests));
-
     // Dodaj novog gosta
     guests[uniqueSocketId] = { socketId: uniqueSocketId, nickname: nickname };
 
     console.log(`${nickname} se povezao.`);
 
     socket.emit('assignSocketId', uniqueSocketId); // Pošaljemo socket.id klijentu
-    socket.broadcast.emit('newGuest', nickname);
-    io.emit('updateGuestList', Object.values(guests));
+    socket.broadcast.emit('newGuest', nickname); // Emitovanje novog gosta
+    io.emit('updateGuestList', Object.values(guests).map(guest => guest.nickname)); // Emitujemo celu listu gostiju
 
     socket.on('userLoggedIn', async (username) => {
         if (authorizedUsers.has(username)) {
-            guests[uniqueSocketId] = { socketId: uniqueSocketId, nickname: `${username} (Admin)` };
+            guests[uniqueSocketId].nickname = `${username} (Admin)`; // Promenili smo samo nickname
             console.log(`${username} je autentifikovan kao admin.`);
         } else {
-            guests[uniqueSocketId] = { socketId: uniqueSocketId, nickname: username };
+            guests[uniqueSocketId].nickname = username; // Promenili smo samo nickname
             console.log(`${username} se prijavio kao gost.`);
         }
-        io.emit('updateGuestList', Object.values(guests));
+        // Emitujemo samo promene
+        io.emit('updateGuest', { socketId: uniqueSocketId, nickname: guests[uniqueSocketId].nickname });
     });
 
     socket.on('chatMessage', (msgData) => {
@@ -79,7 +77,8 @@ io.on('connection', (socket) => {
         console.log(`${guests[uniqueSocketId].nickname} se odjavio.`);
         assignedNumbers.delete(parseInt(guests[uniqueSocketId].nickname.split('-')[1], 10));
         delete guests[uniqueSocketId];
-        io.emit('updateGuestList', Object.values(guests));
+        // Emitujemo samo promene
+        io.emit('updateGuestList', Object.values(guests).map(guest => guest.nickname));
     });
 });
 
