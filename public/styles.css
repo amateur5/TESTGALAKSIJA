@@ -77,6 +77,8 @@ body {
     position: relative;
     flex-direction: column;
     overflow: hidden;
+    padding-top: 250px;  /* Razmak od 250px sa vrha kad scroll bar postane aktivan */
+    padding-bottom: 150px;  /* Razmak od 150px sa dna kad scroll bar postane aktivan */
 }
 
 #toolbar {
@@ -147,7 +149,7 @@ body {
     border-left: 2px solid white;
     background-color: black;
     color: white; /* Default color remains white for non-dynamic text */
-    border-bottom: 5px solid white;
+    border-bottom: 10px solid white;
     overflow-y: auto;
 }
 
