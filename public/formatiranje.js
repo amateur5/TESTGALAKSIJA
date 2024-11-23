@@ -1,4 +1,4 @@
-// Objekat za čuvanje podataka o gostima (bez localStorage)
+const socket = io();  // Povezivanje sa serverom koristeći socket.io
 const guestsData = {};
 
 // Funkcija za dodavanje stilova gostima
