@@ -7,9 +7,9 @@ if (!userUUID) {
     localStorage.setItem('userUUID', userUUID); // Čuvamo UUID u localStorage
 }
 
-let isBold = true;
-let isItalic = true;
-let currentColor = '#FFFFFF';
+let isBold = false;
+let isItalic = false;
+let currentColor = '#000000'; // Boja za poruke
 
 // Objekat za čuvanje podataka o gostima
 const guestsData = {};
@@ -26,7 +26,7 @@ document.getElementById('italicBtn').addEventListener('click', function() {
     updateInputStyle();
 });
 
-// Funkcija za biranje boje
+// Funkcija za biranje boje poruke (glavni color picker)
 document.getElementById('colorBtn').addEventListener('click', function() {
     document.getElementById('colorPicker').click();
 });
