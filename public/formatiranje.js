@@ -1,78 +1,38 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const socket = io();
+// Kada se klikne na dugme za boje
+const colorBtn = document.getElementById("colorBtn");
+const colorPicker = document.getElementById("colorPicker");
+const chatInput = document.getElementById("chatInput");
+
+// Kada korisnik izabere boju, ona se primenjuje na tekst u unosu, porukama i korisničkom imenu
+colorBtn.addEventListener("click", function() {
+    colorPicker.click(); // Otvara color picker
+});
+
+// Kada korisnik izabere boju
+colorPicker.addEventListener("input", function() {
+    const selectedColor = colorPicker.value;
     
-    const boldBtn = document.getElementById("boldBtn");
-    const italicBtn = document.getElementById("italicBtn");
-    const colorBtn = document.getElementById("colorBtn");
-    const colorPicker = document.getElementById("colorPicker");
-    const chatInput = document.getElementById("chatInput");
+    // Postavljanje boje u textarea (polje za unos)
+    chatInput.style.color = selectedColor;
 
-    let selectedColor = "#ffffff"; // Default boja
+    // Takođe, možemo čuvati boju za kasniju upotrebu, npr. za prikazivanje u porukama i imenu
+    const userName = "Broj-Gost";  // Možeš da ubaciš dinamiku za korisničko ime
+    const message = chatInput.value;
 
-    // Funkcija za primenu stila na tekst
-    function applyStyle(style) {
-        const currentText = chatInput.value;
-        chatInput.value = `<${style}>${currentText}</${style}>`;
-    }
+    // Prikazivanje korisničkog imena i poruke sa izabranom bojom
+    const messageArea = document.getElementById("messageArea");
+    const guestList = document.getElementById("guestList");
 
-    // Bold dugme
-    boldBtn.addEventListener("click", () => {
-        applyStyle("b");
-    });
+    // Dodavanje nove poruke u prikaz sa bojom
+    const newMessage = document.createElement("div");
+    newMessage.innerHTML = `<span style="color: ${selectedColor};">${userName}: </span>${message}`;
+    messageArea.appendChild(newMessage);
 
-    // Italic dugme
-    italicBtn.addEventListener("click", () => {
-        applyStyle("i");
-    });
+    // Dodavanje korisnika sa bojom u listu
+    const newGuest = document.createElement("div");
+    newGuest.innerHTML = `<span style="color: ${selectedColor};">${userName}</span>`;
+    guestList.appendChild(newGuest);
 
-    // Boja dugme
-    colorBtn.addEventListener("click", () => {
-        colorPicker.click();
-    });
-
-    // Kada se odabere boja
-    colorPicker.addEventListener("input", (event) => {
-        selectedColor = event.target.value;
-        chatInput.style.color = selectedColor; // Postavi boju unosa
-
-        // Takođe, možemo postaviti boju i na poruke
-        const messages = document.querySelectorAll(".message");
-        messages.forEach(msg => {
-            msg.style.color = selectedColor;
-        });
-    });
-
-    // Slanje poruke kada korisnik pritisne enter
-    chatInput.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            const message = chatInput.value;
-            socket.emit("chatMessage", { text: message, color: selectedColor });
-
-            // Očisti polje za unos
-            chatInput.value = "";
-        }
-    });
-
-    // Dodajemo funkciju za prikaz poruke
-    socket.on("chatMessage", (msgData) => {
-        const messageArea = document.getElementById("messageArea");
-        const message = document.createElement("div");
-        message.classList.add("message");
-        message.innerHTML = `<span style="color:${msgData.color}; font-weight:${msgData.bold ? 'bold' : 'normal'}; font-style:${msgData.italic ? 'italic' : 'normal'}">${msgData.nickname}: ${msgData.text}</span>`;
-        messageArea.appendChild(message);
-    });
-
-    // Funkcija za dodavanje nikname
-    socket.on("updateGuestList", (guests) => {
-        const guestList = document.getElementById("guestList");
-        guestList.innerHTML = ''; // Očisti listu
-        guests.forEach(guest => {
-            const guestDiv = document.createElement("div");
-            guestDiv.classList.add("guest");
-            guestDiv.textContent = guest.nickname;
-            guestDiv.style.color = guest.color; // Postavi boju nickna
-            guestList.appendChild(guestDiv);
-        });
-    });
+    // Očistiti polje za unos nakon što se poruka prikaže
+    chatInput.value = "";
 });
