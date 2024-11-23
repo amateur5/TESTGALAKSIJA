@@ -1,12 +1,5 @@
 const socket = io();
 
-// UUID za korisnika
-let userUUID = localStorage.getItem('userUUID');
-if (!userUUID) {
-    userUUID = uuid.v4();  // Generišemo novi UUID ako ne postoji
-    localStorage.setItem('userUUID', userUUID); // Čuvamo UUID u localStorage
-}
-
 let isBold = false;
 let isItalic = false;
 let currentColor = '#000000'; // Boja za poruke
@@ -15,27 +8,39 @@ let currentColor = '#000000'; // Boja za poruke
 const guestsData = {};
 
 // Funkcija za BOLD formatiranje
-document.getElementById('boldBtn').addEventListener('click', function() {
-    isBold = !isBold;
-    updateInputStyle();
-});
+const boldBtn = document.getElementById('boldBtn');
+if (boldBtn) {
+    boldBtn.addEventListener('click', function() {
+        isBold = !isBold;
+        updateInputStyle();
+    });
+}
 
 // Funkcija za ITALIC formatiranje
-document.getElementById('italicBtn').addEventListener('click', function() {
-    isItalic = !isItalic;
-    updateInputStyle();
-});
+const italicBtn = document.getElementById('italicBtn');
+if (italicBtn) {
+    italicBtn.addEventListener('click', function() {
+        isItalic = !isItalic;
+        updateInputStyle();
+    });
+}
 
 // Funkcija za biranje boje poruke (glavni color picker)
-document.getElementById('colorBtn').addEventListener('click', function() {
-    document.getElementById('colorPicker').click();
-});
+const colorBtn = document.getElementById('colorBtn');
+if (colorBtn) {
+    colorBtn.addEventListener('click', function() {
+        document.getElementById('colorPicker').click();
+    });
+}
 
 // Kada korisnik izabere boju iz palete
-document.getElementById('colorPicker').addEventListener('input', function() {
-    currentColor = this.value;
-    updateInputStyle();
-});
+const colorPicker = document.getElementById('colorPicker');
+if (colorPicker) {
+    colorPicker.addEventListener('input', function() {
+        currentColor = this.value;
+        updateInputStyle();
+    });
+}
 
 // Primena stilova na polju za unos
 function updateInputStyle() {
@@ -46,20 +51,23 @@ function updateInputStyle() {
 }
 
 // Kada korisnik pritisne Enter
-document.getElementById('chatInput').addEventListener('keydown', function(event) {
-    if (event.key === 'Enter') {
-        event.preventDefault();
-        let message = this.value;
-        socket.emit('chatMessage', {
-            text: message,
-            bold: isBold,
-            italic: isItalic,
-            color: currentColor,
-            uuid: userUUID  // Pošaljemo UUID sa porukom
-        });
-        this.value = ''; // Isprazni polje za unos
-    }
-});
+const chatInput = document.getElementById('chatInput');
+if (chatInput) {
+    chatInput.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            let message = this.value.trim(); // Uklonite beline
+            if (message === '') return; // Ne šaljite ako je prazna
+            socket.emit('chatMessage', {
+                text: message,
+                bold: isBold,
+                italic: isItalic,
+                color: currentColor
+            });
+            this.value = ''; // Isprazni polje za unos
+        }
+    });
+}
 
 // Kada server pošalje poruku
 socket.on('chatMessage', function(data) {
@@ -98,7 +106,6 @@ socket.on('newGuest', function(nickname) {
     }
 
     addGuestStyles(newGuest, guestId); // Dodaj stilove
-
     guestList.appendChild(newGuest); // Dodaj novog gosta
 });
 
@@ -132,6 +139,10 @@ function deleteChat() {
 }
 
 // Osluškivanje klika na dugme "D"
-document.getElementById('openModal').onclick = function() {
-    deleteChat(); // Pozivamo funkciju za brisanje chata
-};
+const openModalBtn = document.getElementById('openModal');
+if (openModalBtn) {
+    openModalBtn.onclick = function(event) {
+        event.preventDefault(); // Sprečava default akciju
+        deleteChat(); // Pozivamo funkciju za brisanje chata
+    };
+}
