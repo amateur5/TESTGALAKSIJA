@@ -17,8 +17,9 @@ body {
     height: 250px; /* Tačno 250px visine */
     box-shadow: 0px 4px 8px rgba(0, 255, 255, 0.5); /* Neon senka */
     position: absolute; /* Postavljeno na absolute */
-    top: 0; /* Gornji leviji kut */
-    left: 0; /* Gornji leviji kut */
+    top: 50%; /* Centriranje na ekranu */
+    left: 50%;
+    transform: translate(-50%, -50%); /* Precizno centriranje */
 }
 
 #authContainer form {
