@@ -116,8 +116,6 @@ body {
     flex-direction: column;
     overflow-y: auto;
     scrollbar: 3px;
-    padding-top: 250px;  /* Razmak od 250px sa vrha kad scroll bar postane aktivan */
-    padding-bottom: 150px;  /* Razmak od 150px sa dna kad scroll bar postane aktivan */
 }
 
 .message {
